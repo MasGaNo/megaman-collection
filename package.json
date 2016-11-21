@@ -1,0 +1,37 @@
+{
+  "name": "megaman-collection",
+  "version": "1.0.0",
+  "description": "Collection of MegaMan Items",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masgano/megaman-collection.git"
+  },
+  "dependencies": {
+    "@types/node": "6.0.46",
+    "@types/express": "4.0.33",
+    "@types/body-parser": "0.0.33",
+    "@types/react": "0.14.44",
+    "@types/page": "1.5.31",
+    "reaptor": "athome-group/reaptor#develop",
+    "reaptor-react-async": "athome-group/reaptor-react-async",
+    "react": "15.0.1",
+    "react-dom": "15.0.1",
+    "express": "4.14.0",
+    "body-parser": "1.15.2",
+    "page": "1.7.1"
+  },
+  "devDependencies": {
+    "typescript": "2.0.7",
+    "webpack": "1.13.3"
+  },
+  "author": "MasGaNo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MasGaNo/megaman-collection/issues"
+  },
+  "homepage": "https://github.com/masgano/megaman-collection#readme"
+}

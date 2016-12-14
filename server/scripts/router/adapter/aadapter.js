@@ -18,8 +18,13 @@ function buildPathWithParams(path, require = [], optional = [], params = {}) {
     return `/${path}/${requireStr}/${optionalStr}`;
 }
 class RouterAAdapter {
-    construct() {
+    constructor() {
         this.routeReference = {};
+        this.loader = {};
+    }
+    addLoader(loaderId, loader) {
+        this.loader[loaderId] = loader;
+        return this;
     }
     getUrl(routeName, params) {
         const route = this.routeReference[routeName];

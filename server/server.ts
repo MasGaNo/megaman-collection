@@ -10,15 +10,24 @@ import {Bootstrap} from './scripts/bootstrap';
 
 import {RouterAdapterExpress} from './scripts/router/adapter/express';
 
+import { LoaderPage } from './scripts/loader/page';
+import { LoaderApi } from './scripts/loader/api';
+
 var app = express();
 app.use(BodyParser.json());
 
-const routerAdapter = new Reaptor.Router.Router(new RouterAdapterExpress(app));
+let expressAdapter = new RouterAdapterExpress(app);
+expressAdapter.addLoader('page', new LoaderPage());
+const routerAdapter = new Reaptor.Router.Router(expressAdapter);
 
-console.error('Bou');
+let expressAdapterApi = new RouterAdapterExpress(app);
+expressAdapterApi.addLoader('api', new LoaderApi());
+const routerAdapterApi = new Reaptor.Router.Router(expressAdapterApi);
 
 const bootstrap = new Bootstrap();
 bootstrap.addRouter('http', routerAdapter);
+bootstrap.addRouter('api', routerAdapterApi);
+
 bootstrap.start(Configuration).then(() => {
     let port = process.env.NODE_PORT || 3000;
     app.listen(port, () => {
@@ -27,4 +36,3 @@ bootstrap.start(Configuration).then(() => {
 }).catch((e: Error) => {
     console.error(e);
 })
-

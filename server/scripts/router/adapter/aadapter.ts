@@ -1,4 +1,5 @@
 import * as Reaptor from 'reaptor';
+import {ALoader} from '../../loader';
 
 function buildPathWithParams(path: string, require: string[] = [], optional: string[] = [], params: {[key:string]: any} = {}) {
     let requireStr: string = require.map((requireParam: string) => {
@@ -23,9 +24,16 @@ function buildPathWithParams(path: string, require: string[] = [], optional: str
 
 export abstract class RouterAAdapter implements Reaptor.Router.IAdapterRouter {
     protected routeReference: {[routeName:string]: Reaptor.Router.IRoute};
+    protected loader: {[loaderId: string]: ALoader};
 
-    construct() {
+    constructor() {
         this.routeReference = {};
+        this.loader = {};
+    }
+
+    addLoader(loaderId: string, loader: ALoader) {
+        this.loader[loaderId] = loader;
+        return this;
     }
 
     abstract add(route: Reaptor.Router.IRoute): Promise<void>;

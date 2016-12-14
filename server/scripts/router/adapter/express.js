@@ -1,16 +1,6 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 const aadapter_1 = require('./aadapter');
 const default_1 = require('../../configuration/default');
-const React = require('react');
-const ReactiveDOM_1 = require('reaptor-react-async/lib/ReactiveDOM');
 class RouterAdapterExpress extends aadapter_1.RouterAAdapter {
     constructor(router) {
         super();
@@ -30,50 +20,44 @@ class RouterAdapterExpress extends aadapter_1.RouterAAdapter {
     }
     getRouteLauncher(routeDefinition, statusCode = 200) {
         return (request, response) => {
-            let routeDef = routeDefinition.apply(this, request.params);
+            let routeDef = routeDefinition(request.params);
             let isTimeout = false;
             let timeoutId = setTimeout(() => {
                 isTimeout = true;
                 this.getRouteLauncher(() => {
                     return {
-                        page: 'Error'
+                        type: 'page',
+                        value: 'Error'
                     };
-                }, 504);
+                }, 408);
             }, default_1.default.routers.timeout);
-            let pagePath = `../../page/${routeDef.page}`;
-            let Page = require(pagePath).default;
-            let proceedHtml = (html, code = statusCode) => {
+            let proceedResponse = (responseValue, code = statusCode) => {
                 if (isTimeout) {
                     return;
                 }
                 clearTimeout(timeoutId);
                 response.setHeader('Content-Type', routeDef.contentType || 'text/html');
-                response.status(code).send(html);
+                response.status(code).send(responseValue);
             };
-            let promise = ReactiveDOM_1.default.renderToStaticMarkup(React.createElement(Page, __assign({}, routeDef.params)));
-            if (promise instanceof Promise) {
-                promise.then(proceedHtml).catch(() => {
-                    if (isTimeout) {
-                        return;
-                    }
-                    pagePath = `../../page/Error`;
-                    Page = require(pagePath);
-                    promise = ReactiveDOM_1.default.renderToStaticMarkup(React.createElement(Page, null));
-                    if (promise instanceof Promise) {
-                        promise.then((html) => {
-                            proceedHtml(html, 500);
-                        });
-                    }
-                    else {
-                        proceedHtml(promise, 500);
-                    }
-                }).catch((e) => {
-                    console.error(e);
-                });
-            }
-            else {
-                proceedHtml(promise);
-            }
+            this.loader[routeDef.type].load(routeDef.value).execute(routeDef.params).then(proceedResponse).catch((e) => {
+                console.error(e);
+                if (isTimeout) {
+                    return;
+                }
+                /*pagePath = `../../page/Error`;
+                Page = require(pagePath);
+                promise = ReactiveDOM.renderToStaticMarkup(<Page />);
+
+                if (promise instanceof Promise) {
+                    promise.then((html) => {
+                        proceedHtml(html, 500);
+                    });
+                } else {
+                    proceedHtml(promise as string, 500);
+                }*/
+            }).catch((e) => {
+                console.error(e);
+            });
         };
     }
 }

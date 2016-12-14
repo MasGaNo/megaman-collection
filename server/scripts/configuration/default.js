@@ -1,4 +1,8 @@
 "use strict";
+exports.LoaderType = {
+    Page: 'page',
+    Api: 'api'
+};
 const _ConfigurationDefault = {
     routers: {
         http: {
@@ -9,7 +13,41 @@ const _ConfigurationDefault = {
                     method: 'GET',
                     callback: () => {
                         return {
-                            page: 'Index'
+                            type: exports.LoaderType.Page,
+                            value: 'Index'
+                        };
+                    }
+                },
+                details: {
+                    name: 'details',
+                    path: '/details/',
+                    method: 'GET',
+                    requiredParameters: ['id'],
+                    optionalParamters: ['offerName'],
+                    callback: (id, offerName) => {
+                        return {
+                            type: exports.LoaderType.Page,
+                            value: 'Details',
+                            id: id,
+                            offerName: offerName
+                        };
+                    }
+                }
+            }
+        },
+        api: {
+            routes: {
+                userGet: {
+                    name: 'userGet',
+                    method: 'GET',
+                    path: '/api/user/',
+                    requiredParameters: ['id'],
+                    callback: (data) => {
+                        return {
+                            type: exports.LoaderType.Api,
+                            value: 'User/Get',
+                            id: data.id,
+                            contentType: 'text/json'
                         };
                     }
                 }

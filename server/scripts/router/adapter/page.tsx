@@ -41,7 +41,7 @@ export class RouterAdapterPage extends RouterAAdapter {
 
             let routeDef: TRouteDefinition = routeDefinition.apply(this, requestContext);
 
-            let pagePath = `../../page/${routeDef.page}`;
+            let pagePath = `../../page/${routeDef.value}`;
 
             let Page = require(pagePath).default;
 

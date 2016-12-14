@@ -4,9 +4,6 @@ import * as express from 'express';
 import ConfigurationDefault from '../../configuration/default';
 import {TRouteDefinition} from '../../configuration/default';
 
-import * as React from 'react';
-
-import ReactiveDOM from 'reaptor-react-async/lib/ReactiveDOM';
 
 type HttpMethod = 'get'|'post'|'head'|'put'|'patch'|'delete'|'options';
 
@@ -38,7 +35,7 @@ export class RouterAdapterExpress extends RouterAAdapter {
     private getRouteLauncher(routeDefinition: (params?: any) => TRouteDefinition, statusCode: number = 200) {
         return (request: express.Request, response: express.Response) => {
 
-            let routeDef: TRouteDefinition = routeDefinition.apply(this, request.params);
+            let routeDef: TRouteDefinition = routeDefinition(request.params);
 
             let isTimeout: boolean = false;
 
@@ -46,17 +43,13 @@ export class RouterAdapterExpress extends RouterAAdapter {
                 isTimeout = true;
                 this.getRouteLauncher(() => {
                     return {
-                        page: 'Error'
+                        type: 'page',
+                        value: 'Error'
                     } as TRouteDefinition;
-                }, 504);
+                }, 408);
             }, ConfigurationDefault.routers.timeout);
 
-            // Replace by loader
-            let pagePath = `../../page/${routeDef.page}`;
-
-            let Page = require(pagePath).default;
-
-            let proceedHtml = (html: string, code: number = statusCode) => {
+            let proceedResponse = (responseValue: string, code: number = statusCode) => {
                 if (isTimeout) {
                     return;
                 }
@@ -64,34 +57,29 @@ export class RouterAdapterExpress extends RouterAAdapter {
                 clearTimeout(timeoutId);
 
                 response.setHeader('Content-Type', routeDef.contentType || 'text/html');
-                response.status(code).send(html);
+                response.status(code).send(responseValue);
             }
+            this.loader[routeDef.type].load(routeDef.value).execute(routeDef.params).then(proceedResponse).catch((e) => {
+                console.error(e);
+                if (isTimeout) {
+                    return;
+                }
 
-            let promise = ReactiveDOM.renderToStaticMarkup(<Page {...routeDef.params} />);
-            if (promise instanceof Promise) {
-                promise.then(proceedHtml).catch(() => {
-                    if (isTimeout) {
-                        return;
-                    }
+                /*pagePath = `../../page/Error`;
+                Page = require(pagePath);
+                promise = ReactiveDOM.renderToStaticMarkup(<Page />);
 
-                    pagePath = `../../page/Error`;
-                    Page = require(pagePath);
-                    promise = ReactiveDOM.renderToStaticMarkup(<Page />);
+                if (promise instanceof Promise) {
+                    promise.then((html) => {
+                        proceedHtml(html, 500);
+                    });
+                } else {
+                    proceedHtml(promise as string, 500);
+                }*/                   
 
-                    if (promise instanceof Promise) {
-                        promise.then((html) => {
-                            proceedHtml(html, 500);
-                        });
-                    } else {
-                        proceedHtml(promise as string, 500);
-                    }              
-
-                }).catch((e) => {
-                    console.error(e);
-                });
-            } else {
-                proceedHtml(promise as string); 
-            }
+            }).catch((e) => {
+                console.error(e);
+            });
         }
     }
     

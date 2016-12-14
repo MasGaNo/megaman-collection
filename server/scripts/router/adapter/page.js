@@ -32,7 +32,7 @@ class RouterAdapterPage extends aadapter_1.RouterAAdapter {
         return (requestContext, next) => {
             let currentRequestId = this.routerId++;
             let routeDef = routeDefinition.apply(this, requestContext);
-            let pagePath = `../../page/${routeDef.page}`;
+            let pagePath = `../../page/${routeDef.value}`;
             let Page = require(pagePath).default;
             ReactDOM.render((React.createElement(Page, __assign({}, routeDef.params))), document.getElementsByTagName('html')[0]);
         };

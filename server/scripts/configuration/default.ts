@@ -1,7 +1,8 @@
 import * as Reaptor from 'reaptor';
 
 export type TRouteDefinition = {
-    page: string;
+    type: string;
+    value: string;
     params?: {
         [key: string]: any;
     };
@@ -19,6 +20,11 @@ type TConfigurationDefault = Reaptor.Bootstrap.IBootstrapConfiguration & {
     }
 }
 
+export const LoaderType = {
+    Page: 'page',
+    Api: 'api'
+};
+
 const _ConfigurationDefault = {
     routers: {
         http: {
@@ -29,8 +35,42 @@ const _ConfigurationDefault = {
                     method: 'GET',
                     callback: () => {
                         return {
-                            page: 'Index'
+                            type: LoaderType.Page,
+                            value: 'Index'
                         } as TRouteDefinition;
+                    }
+                },
+                details: {
+                    name: 'details',
+                    path: '/details/',
+                    method: 'GET',
+                    requiredParameters: ['id'],
+                    optionalParamters: ['offerName'],
+                    callback: (id, offerName) => {
+                        return {
+                            type: LoaderType.Page,
+                            value: 'Details',
+                            id: id,
+                            offerName: offerName
+                        } as TRouteDefinition;
+                    }
+                }
+            }
+        },
+        api: {
+            routes: {
+                userGet: {
+                    name: 'userGet',
+                    method: 'GET',
+                    path: '/api/user/',
+                    requiredParameters: ['id'],
+                    callback: (data) => {
+                        return {
+                            type: LoaderType.Api,
+                            value: 'User/Get',
+                            id: data.id,
+                            contentType: 'text/json'
+                        };
                     }
                 }
             }
